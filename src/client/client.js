@@ -5,17 +5,24 @@ export default class Client extends React.Component {
 	constructor (props) {
 		super(props);
 
-		this.state = { message: 'Delaying the message from the server...' };
+		this.state = {
+			lobbyList: [],
+			message: 'Waiting for the server...'
+		};
 
 		this.handshakeSubscription = gameServer.handshakeSource
-			.delay(1500)
-			.subscribe((handshakeData) => {
-				this.setState({ message: handshakeData.message });
+			.subscribe((handshake) => {
+				this.setState({ message: handshake.message });
+			});
+
+		this.lobbyListSubscription = gameServer.lobbyListSource
+			.subscribe((lobbyList) => {
+				this.setState({ lobbyList: lobbyList });
 			});
 	}
 
-	componentWillUnmount () {
-		this.handshakeSubscription.dispose();
+	onNameChange (event) {
+		gameServer.sendNameChange(event.target.value);
 	}
 
 	render () {
@@ -23,7 +30,21 @@ export default class Client extends React.Component {
 			<div>
 				<h1>Client</h1>
 				<p>{this.state.message}</p>
+				<p>Your name: <input type="input" placeholder="Anonymous" onInput={this.onNameChange.bind(this)}/></p>
+				<p>Online:</p>
+				<ul>
+				{
+					this.state.lobbyList.map((player) => {
+						return <li>{player.name} - {player.id}</li>;
+					})
+				}
+				</ul>
 			</div>
 		);
+	}
+
+	componentWillUnmount () {
+		this.handshakeSubscription.dispose();
+		this.lobbyListSubscription.dispose();
 	}
 }

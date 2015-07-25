@@ -6,6 +6,11 @@ class GameServer {
 		this.mainSocket = io('http://localhost:3000/');
 
 		this.handshakeSource = Rx.Observable.fromEvent(this.mainSocket, 'handshake');
+		this.lobbyListSource = Rx.Observable.fromEvent(this.mainSocket, 'lobby-list');
+	}
+
+	sendNameChange (changedName) {
+		this.mainSocket.emit('set-name', changedName);
 	}
 }
 
