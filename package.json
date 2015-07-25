@@ -1,0 +1,29 @@
+{
+  "name": "stratego",
+  "version": "0.0.1",
+  "description": "A Stratego game (engine) in JavaScript, using Socket.IO and NodeJS for the server, ReactJS for the client and RxJS for all the glue.",
+  "main": "server.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "server": "node ./src/server/index.js",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThomasBrekelmans/stratego.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/ThomasBrekelmans/stratego#readme",
+  "devDependencies": {
+    "babel-core": "^5.8.5",
+    "babel-loader": "^5.3.2",
+    "eslint": "^0.24.1",
+    "eslint-plugin-react": "^3.0.0",
+    "webpack": "^1.10.5"
+  },
+  "dependencies": {
+    "react": "^0.13.3",
+    "rx-lite": "^2.5.2",
+    "socket.io": "^1.3.6"
+  }
+}

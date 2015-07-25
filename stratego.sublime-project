@@ -1,0 +1,19 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"SublimeLinter":
+	{
+		"linters":
+		{
+			"eslint": {
+				"args": [
+					"--plugin", "react"
+				]
+			}
+		}
+	}
+}

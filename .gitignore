@@ -1,0 +1,6 @@
+.DS_Store
+*.sublime-workspace
+node_modules
+npm-debug.log
+build/bundle.js
+build/bundle.js.map
