@@ -18,10 +18,6 @@ function Player (lobby, socket) {
 	}.bind(this));
 }
 
-Player.prototype.acceptHandshake = function (data) {
-	this._socket.emit('handshake', data);
-};
-
 Player.prototype.displayGameInvite = function (otherPlayerInfo) {
 	this._socket.emit('game-invite', {
 		from: otherPlayerInfo,

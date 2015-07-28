@@ -7,14 +7,8 @@ export default class Client extends React.Component {
 		super(props);
 
 		this.state = {
-			lobbyList: [],
-			message: 'Waiting for the server...'
+			gameInvite: null
 		};
-
-		this._handshakeSubscription = gameServer.handshakeEvents
-			.subscribe((handshake) => {
-				this.setState({ message: handshake.message });
-			});
 
 		this._gameInviteSubscription = gameServer.gameInviteEvents
 			.subscribe((gameInvite) => {
@@ -30,7 +24,6 @@ export default class Client extends React.Component {
 		return (
 			<div>
 				<h1>Client</h1>
-				<p>{this.state.message}</p>
 				{
 					this.state.gameInvite ?
 						<p>{ this.state.gameInvite.message + ', from ' + this.state.gameInvite.from.name }</p> :

@@ -5,7 +5,6 @@ class GameServer {
 	constructor () {
 		this._mainSocket = io('http://localhost:3000/');
 
-		this.handshakeEvents = Rx.Observable.fromEvent(this._mainSocket, 'handshake');
 		this.lobbyListEvents = Rx.Observable.fromEvent(this._mainSocket, 'lobby-list');
 		this.gameInviteEvents = Rx.Observable.fromEvent(this._mainSocket, 'game-invite');
 	}

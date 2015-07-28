@@ -9,10 +9,6 @@ function Lobby (io) {
 		var player = new Player(this, socket);
 		this._players.push(player);
 
-		player.acceptHandshake({
-			message: 'Welcome to the Server! #id: ' + player.getId()
-		});
-
 		this._emitLobbyListUpdate();
 	}.bind(this));
 }
