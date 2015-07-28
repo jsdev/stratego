@@ -43,7 +43,7 @@
   "globals": {},
 
   "plugins": [
-    "react"
+    // "react"
   ],
 
   "rules": {

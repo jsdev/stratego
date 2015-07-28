@@ -3,14 +3,23 @@ import Rx from 'rx-lite';
 
 class GameServer {
 	constructor () {
-		this.mainSocket = io('http://localhost:3000/');
+		this._mainSocket = io('http://localhost:3000/');
 
-		this.handshakeSource = Rx.Observable.fromEvent(this.mainSocket, 'handshake');
-		this.lobbyListSource = Rx.Observable.fromEvent(this.mainSocket, 'lobby-list');
+		this.handshakeEvents = Rx.Observable.fromEvent(this._mainSocket, 'handshake');
+		this.lobbyListEvents = Rx.Observable.fromEvent(this._mainSocket, 'lobby-list');
+		this.gameInviteEvents = Rx.Observable.fromEvent(this._mainSocket, 'game-invite');
 	}
 
-	sendNameChange (changedName) {
-		this.mainSocket.emit('set-name', changedName);
+	emitSetName (changedName) {
+		this._mainSocket.emit('set-name', changedName);
+	}
+
+	emitSendGameInvite (playerId) {
+		this._mainSocket.emit('send-game-invite', playerId);
+	}
+
+	getCurrentPlayerId () {
+		return this._mainSocket.id;
 	}
 }
 

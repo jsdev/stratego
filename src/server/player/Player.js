@@ -12,24 +12,32 @@ function Player (lobby, socket) {
 
 		this._lobby.broadcastNameChange(this);
 	}.bind(this));
+
+	this._socket.on('send-game-invite', function (playerId) {
+		this._lobby.relayGameInviteToPlayer(this, playerId);
+	}.bind(this));
 }
 
 Player.prototype.acceptHandshake = function (data) {
 	this._socket.emit('handshake', data);
 };
 
-Player.prototype.sendLobbyList = function () {
-	this._socket.emit('lobby-list', this._lobby.players
-		.map(function (player) {
-			return {
-				name: player._name,
-				id: player.getId()
-			};
-		}));
+Player.prototype.displayGameInvite = function (otherPlayerInfo) {
+	this._socket.emit('game-invite', {
+		from: otherPlayerInfo,
+		message: 'This is a game invite'
+	});
 };
 
 Player.prototype.getId = function () {
 	return this._socket.id;
+};
+
+Player.prototype.getPublicInfo = function () {
+	return {
+		id: this.getId(),
+		name: this._name
+	};
 };
 
 module.exports = Player;

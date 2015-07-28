@@ -1,5 +1,6 @@
 import React from 'react';
 import gameServer from './gameServer';
+import Lobby from './lobby/lobby';
 
 export default class Client extends React.Component {
 	constructor (props) {
@@ -10,19 +11,19 @@ export default class Client extends React.Component {
 			message: 'Waiting for the server...'
 		};
 
-		this.handshakeSubscription = gameServer.handshakeSource
+		this._handshakeSubscription = gameServer.handshakeEvents
 			.subscribe((handshake) => {
 				this.setState({ message: handshake.message });
 			});
 
-		this.lobbyListSubscription = gameServer.lobbyListSource
-			.subscribe((lobbyList) => {
-				this.setState({ lobbyList: lobbyList });
+		this._gameInviteSubscription = gameServer.gameInviteEvents
+			.subscribe((gameInvite) => {
+				this.setState({ gameInvite: gameInvite });
 			});
 	}
 
 	onNameChange (event) {
-		gameServer.sendNameChange(event.target.value);
+		gameServer.emitSetName(event.target.value);
 	}
 
 	render () {
@@ -30,21 +31,19 @@ export default class Client extends React.Component {
 			<div>
 				<h1>Client</h1>
 				<p>{this.state.message}</p>
-				<p>Your name: <input type="input" placeholder="Anonymous" onInput={this.onNameChange.bind(this)}/></p>
-				<p>Online:</p>
-				<ul>
 				{
-					this.state.lobbyList.map((player) => {
-						return <li>{player.name} - {player.id}</li>;
-					})
+					this.state.gameInvite ?
+						<p>{ this.state.gameInvite.message + ', from ' + this.state.gameInvite.from.name }</p> :
+						null
 				}
-				</ul>
+				<p>Your name: <input type="input" placeholder="Anonymous" onInput={this.onNameChange.bind(this)}/></p>
+				<Lobby/>
 			</div>
 		);
 	}
 
 	componentWillUnmount () {
-		this.handshakeSubscription.dispose();
-		this.lobbyListSubscription.dispose();
+		this._handshakeSubscription.dispose();
+		this._gameInviteSubscription.dispose();
 	}
 }
