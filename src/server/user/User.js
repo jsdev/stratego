@@ -1,4 +1,4 @@
-function Player (lobby, socket) {
+function User (lobby, socket) {
 	this._lobby = lobby;
 	this._socket = socket;
 	this._name = 'Anonymous';
@@ -13,27 +13,27 @@ function Player (lobby, socket) {
 		this._lobby.broadcastNameChange(this);
 	}.bind(this));
 
-	this._socket.on('send-game-invite', function (playerId) {
-		this._lobby.relayGameInviteToPlayer(this, playerId);
+	this._socket.on('send-game-invite', function (userId) {
+		this._lobby.relayGameInviteToUser(this, userId);
 	}.bind(this));
 }
 
-Player.prototype.displayGameInvite = function (otherPlayerInfo) {
+User.prototype.displayGameInvite = function (otherUserInfo) {
 	this._socket.emit('game-invite', {
-		from: otherPlayerInfo,
+		from: otherUserInfo,
 		message: 'This is a game invite'
 	});
 };
 
-Player.prototype.getId = function () {
+User.prototype.getId = function () {
 	return this._socket.id;
 };
 
-Player.prototype.getPublicInfo = function () {
+User.prototype.getPublicInfo = function () {
 	return {
 		id: this.getId(),
 		name: this._name
 	};
 };
 
-module.exports = Player;
+module.exports = User;
