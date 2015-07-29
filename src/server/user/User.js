@@ -1,28 +1,32 @@
-function User (lobby, socket) {
-	this._lobby = lobby;
+function User (lobby, gameInvitesManager, gamesManager, socket) {
 	this._socket = socket;
 	this._name = 'Anonymous';
 
 	this._socket.on('disconnect', function () {
-		this._lobby.broadcastDisconnect(this);
+		lobby.onDisconnect(this);
 	}.bind(this));
 
 	this._socket.on('set-name', function (name) {
 		this._name = name;
 
-		this._lobby.broadcastNameChange(this);
+		lobby.onNameChange(this);
 	}.bind(this));
 
 	this._socket.on('send-game-invite', function (userId) {
-		this._lobby.relayGameInviteToUser(this, userId);
+		gameInvitesManager.relayGameInviteToUser(this, userId);
+	}.bind(this));
+
+	this._socket.on('accept-game-invite', function (userId) {
+		gamesManager.startGameBetween(this, userId);
+	}.bind(this));
+
+	this._socket.on('decline-game-invite', function (userId) {
+		gameInvitesManager.relayDeclinedGameInviteToUser(this, userId);
 	}.bind(this));
 }
 
-User.prototype.displayGameInvite = function (otherUserInfo) {
-	this._socket.emit('game-invite', {
-		from: otherUserInfo,
-		message: 'This is a game invite'
-	});
+User.prototype.emit = function (message, data) {
+	this._socket.emit(message, data);
 };
 
 User.prototype.getId = function () {

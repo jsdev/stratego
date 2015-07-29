@@ -1,12 +1,17 @@
-var User = require('../user/User');
+var GameInvitesManager = require('../game/GameInvitesManager'),
+	GamesManager = require('../game/GamesManager'),
+	User = require('../user/User');
 
 function Lobby (io) {
 	this._io = io;
 
 	this._users = [];
 
+	this._gameInvitesManager = new GameInvitesManager(this);
+	this._gamesManager = new GamesManager(this);
+
 	this._io.on('connection', function (socket) {
-		var user = new User(this, socket);
+		var user = new User(this, this._gameInvitesManager, this._gamesManager, socket);
 		this._users.push(user);
 
 		this._emitLobbyListUpdate();
@@ -20,27 +25,25 @@ Lobby.prototype._emitLobbyListUpdate = function () {
 		}));
 };
 
-Lobby.prototype.broadcastDisconnect = function (disconnectingUser) {
+Lobby.prototype.onDisconnect = function (disconnectingUser) {
 	this._users.splice(this._users.indexOf(disconnectingUser), 1);
 
 	this._emitLobbyListUpdate();
 };
 
-Lobby.prototype.broadcastNameChange = function () {
+Lobby.prototype.onNameChange = function () {
 	this._emitLobbyListUpdate();
 };
 
-Lobby.prototype.relayGameInviteToUser = function (fromUser, toUserId) {
-	var invitedUser = null;
+Lobby.prototype.findUserById = function (userId) {
+	var targetUser = null;
 	this._users.forEach(function (user) {
-		if (user.getId() === toUserId) {
-			invitedUser = user;
+		if (user.getId() === userId) {
+			targetUser = user;
+			return;
 		}
 	});
-
-	if (invitedUser) {
-		invitedUser.displayGameInvite(fromUser.getPublicInfo());
-	}
+	return targetUser;
 };
 
 module.exports = Lobby;
