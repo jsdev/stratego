@@ -1,49 +1,42 @@
-var GameInvitesManager = require('../game/GameInvitesManager'),
-	GamesManager = require('../game/GamesManager'),
-	User = require('../user/User');
+var User = require('../user/User');
 
 function Lobby (io) {
 	this._io = io;
 
-	this._users = [];
-
-	this._gameInvitesManager = new GameInvitesManager(this);
-	this._gamesManager = new GamesManager(this);
+	this._connectionBySocketId = {};
 
 	this._io.on('connection', function (socket) {
-		var user = new User(this, this._gameInvitesManager, this._gamesManager, socket);
-		this._users.push(user);
+		this._connectionBySocketId[socket.id] = {
+			user: new User(socket)
+		};
 
-		this._emitLobbyListUpdate();
+		this.emitLobbyUpdate();
+
+		var connection = this._connectionBySocketId[socket.id];
+		connection.disconnectSubscription = connection.user.getObservableFor('disconnect').subscribe(function () {
+			connection.disconnectSubscription.dispose();
+			connection.nameSubscription.dispose();
+
+			delete this._connectionBySocketId[socket.id];
+
+			this.emitLobbyUpdate();
+		}.bind(this));
+
+		connection.nameSubscription = connection.user.getObservableFor('name').subscribe(function (name) {
+			connection.user.name = name;
+
+			this.emitLobbyUpdate();
+		}.bind(this));
 	}.bind(this));
 }
 
-Lobby.prototype._emitLobbyListUpdate = function () {
-	this._io.emit('lobby', this._users
-		.map(function (user) {
-			return user.getPublicInfo();
-		}));
-};
+Lobby.prototype.emitLobbyUpdate = function () {
+	var serializedUsers = Object.keys(this._connectionBySocketId)
+			.map(function (socketId) {
+				return this._connectionBySocketId[socketId].user.serialize();
+			}.bind(this));
 
-Lobby.prototype.onDisconnect = function (disconnectingUser) {
-	this._users.splice(this._users.indexOf(disconnectingUser), 1);
-
-	this._emitLobbyListUpdate();
-};
-
-Lobby.prototype.onNameChange = function () {
-	this._emitLobbyListUpdate();
-};
-
-Lobby.prototype.findUserById = function (userId) {
-	var targetUser = null;
-	this._users.forEach(function (user) {
-		if (user.getId() === userId) {
-			targetUser = user;
-			return;
-		}
-	});
-	return targetUser;
+	this._io.emit('lobby', serializedUsers);
 };
 
 module.exports = Lobby;

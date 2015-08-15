@@ -3,7 +3,13 @@ function GamesManager (lobby) {
 }
 
 GamesManager.prototype.startGameBetween = function (fromUser, toUserId) {
-	// TODO
+	var invitedUser = this._lobby.findUserById(toUserId);
+	if (invitedUser) {
+		invitedUser.emit('game-start', {
+			from: fromUser.getPublicInfo(),
+			declined: true
+		});
+	}
 };
 
 module.exports = GamesManager;

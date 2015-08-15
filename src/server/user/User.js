@@ -1,42 +1,30 @@
-function User (lobby, gameInvitesManager, gamesManager, socket) {
+var Rx = require('rx-lite');
+
+function User (socket) {
 	this._socket = socket;
-	this._name = 'Anonymous';
+	this._observables = {};
 
-	this._socket.on('disconnect', function () {
-		lobby.onDisconnect(this);
-	}.bind(this));
-
-	this._socket.on('set-name', function (name) {
-		this._name = name;
-
-		lobby.onNameChange(this);
-	}.bind(this));
-
-	this._socket.on('send-game-invite', function (userId) {
-		gameInvitesManager.relayGameInviteToUser(this, userId);
-	}.bind(this));
-
-	this._socket.on('accept-game-invite', function (userId) {
-		gamesManager.startGameBetween(this, userId);
-	}.bind(this));
-
-	this._socket.on('decline-game-invite', function (userId) {
-		gameInvitesManager.relayDeclinedGameInviteToUser(this, userId);
-	}.bind(this));
+	this.id = this._socket.id;
+	this.name = 'Anonymous';
 }
 
 User.prototype.emit = function (message, data) {
 	this._socket.emit(message, data);
 };
 
-User.prototype.getId = function () {
-	return this._socket.id;
+User.prototype.getObservableFor = function (message) {
+	if (this._observables[message]) {
+		return this._observables[message];
+	}
+
+	this._observables[message] = Rx.Observable.fromEvent(this._socket, message);
+	return this._observables[message];
 };
 
-User.prototype.getPublicInfo = function () {
+User.prototype.serialize = function () {
 	return {
-		id: this.getId(),
-		name: this._name
+		id: this.id,
+		name: this.name
 	};
 };
 

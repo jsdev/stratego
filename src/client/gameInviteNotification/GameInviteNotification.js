@@ -1,5 +1,5 @@
 import React from 'react';
-import gameServer from '../gameServer/gameServer';
+import localUser from '../user/localUser';
 
 export default class GameInviteNotification extends React.Component {
 	constructor (props) {
@@ -9,18 +9,18 @@ export default class GameInviteNotification extends React.Component {
 			gameInvite: null
 		};
 
-		this._gameInviteSubscription = gameServer.getObservableFor('game-invite')
+		this._gameInviteSubscription = localUser.getObservableFor('game-invite')
 			.subscribe((gameInvite) => {
 				this.setState({ gameInvite: gameInvite });
 			});
 	}
 
 	onAcceptButtonClick () {
-		gameServer.emit('accept-game-invite', this.state.gameInvite.from.id);
+		localUser.emit('accept-game-invite', this.state.gameInvite.from.id);
 	}
 
 	onDeclineButtonClick () {
-		gameServer.emit('decline-game-invite', this.state.gameInvite.from.id);
+		localUser.emit('decline-game-invite', this.state.gameInvite.from.id);
 	}
 
 	render () {
