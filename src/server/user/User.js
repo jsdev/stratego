@@ -8,11 +8,11 @@ function User (socket) {
 	this.name = 'Anonymous';
 }
 
-User.prototype.emit = function (message, data) {
+User.prototype.send = function (message, data) {
 	this._socket.emit(message, data);
 };
 
-User.prototype.getObservableFor = function (message) {
+User.prototype.observe = function (message) {
 	if (this._observables[message]) {
 		return this._observables[message];
 	}

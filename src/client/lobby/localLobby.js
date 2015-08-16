@@ -2,7 +2,7 @@ import Rx from 'rx-lite';
 
 import socket from '../socket/socket';
 
-class UserList {
+class Lobby {
 	constructor () {
 		this._observables = {};
 	}
@@ -21,4 +21,4 @@ class UserList {
 	}
 }
 
-export default new UserList();
+export default new Lobby();

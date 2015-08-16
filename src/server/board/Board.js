@@ -19,4 +19,8 @@ function Board () {
 	}
 }
 
+Board.prototype.reset = function () {
+
+};
+
 module.exports = Board;

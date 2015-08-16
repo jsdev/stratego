@@ -8,7 +8,9 @@ class User extends React.Component {
 	}
 
 	onClick () {
-		console.log('TODO send game invite');
+		localUser.send('game-invite', {
+			to: this.props.user
+		});
 	}
 
 	render () {
