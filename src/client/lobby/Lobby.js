@@ -23,7 +23,7 @@ class Lobby extends React.Component {
 	}
 
 	render () {
-		const users = this.state.lobby.map((user) => <User user={ user }/>);
+		const users = this.state.lobby.map((user) => <User key={ user.id } user={ user }/>);
 
 		return (
 			<div>

@@ -16,8 +16,8 @@ function Lobby (io) {
 		connection.disconnectSubscription = connection.user.observe('disconnect')
 			.subscribe(function () {
 				connection.disconnectSubscription.dispose();
-				connection.nameSubscription.dispose();
-				connection.gameInviteSubscription.dispose();
+				connection.changeNameSubscription.dispose();
+				connection.sendGameInviteSubscription.dispose();
 				connection.acceptGameInviteSubscription.dispose();
 				connection.declineGameInviteSubscription.dispose();
 
@@ -26,41 +26,67 @@ function Lobby (io) {
 				this._emitLobbyUpdate();
 			}.bind(this));
 
-		connection.nameSubscription = connection.user.observe('name')
+		connection.changeNameSubscription = connection.user.observe('change-name')
 			.subscribe(function (name) {
 				connection.user.name = name;
 
 				this._emitLobbyUpdate();
 			}.bind(this));
 
-		connection.gameInviteSubscription = connection.user.observe('game-invite')
+		connection.sendGameInviteSubscription = connection.user.observe('send-game-invite')
 			.subscribe(function (gameInvite) {
-				var toConnection = this._connectionBySocketId[gameInvite.to.id];
-				toConnection.user.send('game-invite', {
-					from: connection.user.serialize(),
-					accepted: false,
-					declined: false
-				});
+				var inviteeConnection = this._connectionBySocketId[gameInvite.invitee.id],
+					updatedGameInvite = {
+						inviter: connection.user.serialize(),
+						inviterCancelled: false,
+						invitee: inviteeConnection.user.serialize(),
+						inviteeAccepted: false,
+						inviteeDeclined: false
+					};
+				inviteeConnection.user.send('receive-game-invite', updatedGameInvite);
+				connection.user.send('receive-game-invite', updatedGameInvite);
 			}.bind(this));
 
 		connection.acceptGameInviteSubscription = connection.user.observe('accept-game-invite')
 			.subscribe(function (gameInvite) {
-				var fromConnection = this._connectionBySocketId[gameInvite.from.id];
-				fromConnection.user.send('game-invite', {
-					from: connection.user.serialize(),
-					accepted: true,
-					declined: false
-				});
+				var inviterConnection = this._connectionBySocketId[gameInvite.inviter.id],
+					updatedGameInvite = {
+						inviter: inviterConnection.user.serialize(),
+						inviterCancelled: false,
+						invitee: connection.user.serialize(),
+						inviteeAccepted: true,
+						inviteeDeclined: false
+					};
+				inviterConnection.user.send('receive-game-invite', updatedGameInvite);
+				connection.user.send('receive-game-invite', updatedGameInvite);
 			}.bind(this));
 
 		connection.declineGameInviteSubscription = connection.user.observe('decline-game-invite')
 			.subscribe(function (gameInvite) {
-				var fromConnection = this._connectionBySocketId[gameInvite.from.id];
-				fromConnection.user.send('game-invite', {
-					from: connection.user.serialize(),
-					accepted: false,
-					declined: true
-				});
+				var inviterConnection = this._connectionBySocketId[gameInvite.inviter.id],
+					updatedGameInvite = {
+						inviter: inviterConnection.user.serialize(),
+						inviterCancelled: false,
+						invitee: connection.user.serialize(),
+						inviteeAccepted: false,
+						inviteeDeclined: true
+					};
+				inviterConnection.user.send('receive-game-invite', updatedGameInvite);
+				connection.user.send('receive-game-invite', updatedGameInvite);
+			}.bind(this));
+
+		connection.cancelGameInviteSubscription = connection.user.observe('cancel-game-invite')
+			.subscribe(function (gameInvite) {
+				var inviteeConnection = this._connectionBySocketId[gameInvite.invitee.id],
+					updatedGameInvite = {
+						inviter: connection.user.serialize(),
+						inviterCancelled: true,
+						invitee: inviteeConnection.user.serialize(),
+						inviteeAccepted: false,
+						inviteeDeclined: false
+					};
+				inviteeConnection.user.send('receive-game-invite', updatedGameInvite);
+				connection.user.send('receive-game-invite', updatedGameInvite);
 			}.bind(this));
 	}.bind(this));
 }

@@ -8,7 +8,7 @@ class NameChanger extends React.Component {
 	}
 
 	onInput (event) {
-		localUser.send('name', event.target.value);
+		localUser.send('change-name', event.target.value);
 	}
 
 	render () {

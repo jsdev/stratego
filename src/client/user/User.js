@@ -7,18 +7,18 @@ class User extends React.Component {
 		super(props);
 	}
 
-	onClick () {
-		localUser.send('game-invite', {
-			to: this.props.user
-		});
+	sendGameInvite () {
+		localUser.send('send-game-invite', { invitee: this.props.user });
 	}
 
 	render () {
-		var userInfo = `${this.props.user.name} - id: ${this.props.user.id}`;
-		if (this.props.user.id !== localUser.getId()) {
-			userInfo = <a href="#" onClick={ this.onClick.bind(this) }>{ userInfo }</a>;
-		}
-		return <li>{ userInfo }</li>;
+		return (
+			<li>
+				<span>{ `name: ${this.props.user.name} - id: ${this.props.user.id}` }</span>
+				{ this.props.user.id !== localUser.getId() &&
+					<a href="#" onClick={ this.sendGameInvite.bind(this) }>(invite to game)</a> }
+			</li>
+		);
 	}
 }
 User.propTypes = {
